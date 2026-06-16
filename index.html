@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>IR TUNNEL | سرویس وی‌پی‌ان حرفه‌ای</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0c15; font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif; min-height: 100vh; overflow-x: hidden; transition: background 0.5s; }
+        .bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 30% 40%, #1a1a2e, #0a0a0f); z-index: -2; transition: all 0.5s; }
+        .glow-orb { position: fixed; width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 200, 255, 0.15), transparent); border-radius: 50%; top: -200px; right: -100px; filter: blur(60px); animation: orbFloat 20s infinite alternate; z-index: -1; }
+        @keyframes orbFloat { 0% { transform: translate(0, 0); } 100% { transform: translate(80px, 80px); } }
+        .container { max-width: 1300px; margin: 0 auto; padding: 20px; position: relative; z-index: 5; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 28px; background: rgba(15, 20, 35, 0.7); backdrop-filter: blur(12px); border-radius: 60px; border: 1px solid rgba(0, 255, 255, 0.2); margin-bottom: 50px; flex-wrap: wrap; gap: 15px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 2rem; filter: drop-shadow(0 0 10px cyan); animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 5px cyan); } 50% { filter: drop-shadow(0 0 20px cyan); } }
+        .logo-text { font-size: 1.7rem; font-weight: 900; background: linear-gradient(135deg, #fff, #0ff, #fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .menu { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .menu-btn { padding: 8px 22px; border-radius: 40px; background: rgba(0, 255, 255, 0.1); border: 1px solid rgba(0, 255, 255, 0.3); color: #0ff; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 0.9rem; }
+        .menu-btn:hover { background: rgba(0, 255, 255, 0.3); box-shadow: 0 0 15px cyan; }
+        .menu-btn.admin-btn { background: rgba(255, 0, 0, 0.2); border-color: #ff4444; color: #ff4444; }
+        .menu-btn.admin-btn:hover { background: rgba(255, 0, 0, 0.4); box-shadow: 0 0 15px #ff4444; }
+        .section { display: none; animation: fadeUp 0.5s ease; }
+        .section.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .hero { background: rgba(15, 20, 40, 0.4); backdrop-filter: blur(10px); border-radius: 50px; padding: 50px; text-align: center; border: 1px solid rgba(0, 255, 255, 0.2); margin-bottom: 50px; }
+        .hero-title { font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #0ff, #f0f, #0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 20px; }
+        .hero-desc { color: #ccc; font-size: 1rem; max-width: 700px; margin: 0 auto 30px; }
+        .badge { display: inline-block; background: rgba(0, 255, 255, 0.2); padding: 8px 20px; border-radius: 40px; color: #0ff; margin: 10px; border: 1px solid cyan; }
+        .welcome-card { background: linear-gradient(135deg, rgba(0, 100, 255, 0.15), rgba(0, 255, 255, 0.05)); border-radius: 30px; padding: 25px; text-align: center; margin-bottom: 40px; border: 1px solid #0ff; }
+        .welcome-text { font-size: 1.3rem; color: #0ff; }
+        .rgb-download-btn { display: block; width: 80%; max-width: 400px; margin: 30px auto; padding: 18px 30px; font-size: 1.4rem; font-weight: bold; text-align: center; color: white; background: linear-gradient(90deg, #ff0000, #ff00ff, #0000ff, #00ff00, #ffff00, #ff0000); background-size: 300% 100%; border: none; border-radius: 60px; cursor: pointer; transition: all 0.3s ease; animation: rgbShift 3s linear infinite, btnPulse 1.5s ease infinite; box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); text-decoration: none; }
+        @keyframes rgbShift { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+        @keyframes btnPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); } 50% { transform: scale(1.02); box-shadow: 0 0 40px rgba(0, 255, 255, 0.8); } }
+        .rgb-download-btn:hover { animation: rgbShift 1s linear infinite, btnPulse 0.8s ease infinite; box-shadow: 0 0 50px cyan; }
+
+        /* مودال ها */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal-card { background: linear-gradient(135deg, #0f172a, #1a1a2e); border-radius: 40px; padding: 35px 30px; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; border: 2px solid rgba(0, 255, 255, 0.3); text-align: center; animation: modalPop 0.4s ease; }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-card h2 { color: #0ff; font-size: 1.6rem; margin-bottom: 20px; }
+        .modal-card input, .modal-card textarea { width: 100%; padding: 12px 18px; margin: 8px 0; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; font-size: 1rem; outline: none; }
+        .modal-card input:focus, .modal-card textarea:focus { border-color: #0ff; }
+        .modal-card .btn-primary { width: 100%; padding: 14px; margin-top: 15px; border-radius: 30px; border: none; background: linear-gradient(90deg, #0ff, #0066ff); color: white; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+        .modal-card .btn-primary:hover { transform: scale(1.02); }
+        .modal-card .btn-danger { background: linear-gradient(90deg, #ff4444, #cc0000); }
+        .modal-card .btn-success { background: linear-gradient(90deg, #00cc66, #00aa55); }
+        .close-modal { color: #888; cursor: pointer; margin-top: 15px; display: inline-block; }
+        .user-list { text-align: right; margin: 10px 0; max-height: 200px; overflow-y: auto; }
+        .user-item { background: rgba(255,255,255,0.05); padding: 8px 12px; margin: 4px 0; border-radius: 10px; display: flex; justify-content: space-between; color: #ccc; font-size: 0.85rem; flex-wrap: wrap; gap: 5px; }
+
+        /* ادمین پنل */
+        .admin-panel { display: none; background: rgba(10, 15, 30, 0.95); border-radius: 30px; padding: 30px; margin: 20px 0; border: 2px solid #ff4444; }
+        .admin-panel.show { display: block; }
+        .admin-panel h3 { color: #ff4444; font-size: 1.5rem; text-align: center; margin-bottom: 20px; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .admin-item { background: rgba(0,0,0,0.4); border-radius: 12px; padding: 12px 10px; text-align: center; border: 1px solid rgba(255,68,68,0.2); cursor: pointer; transition: 0.3s; color: #ccc; font-size: 0.8rem; }
+        .admin-item:hover { border-color: #ff4444; background: rgba(255,68,68,0.15); transform: translateY(-2px); }
+        .admin-item .icon { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+
+        /* پارتنرها و تیم */
+        .partners-section { margin: 30px 0 20px; padding: 20px; background: rgba(15, 20, 40, 0.5); backdrop-filter: blur(8px); border-radius: 30px; border: 1px solid rgba(0, 255, 255, 0.15); }
+        .partners-title { color: #0ff; font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 2px; }
+        .partners-grid { display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap; }
+        .partner-card { background: rgba(0, 0, 0, 0.5); border-radius: 25px; padding: 20px 25px; text-align: center; border: 1px solid rgba(0, 255, 255, 0.2); transition: 0.3s; min-width: 200px; flex: 1; max-width: 280px; }
+        .partner-card:hover { transform: translateY(-5px); border-color: #0ff; box-shadow: 0 0 25px rgba(0, 255, 255, 0.2); }
+        .partner-logo { width: 80px; height: 80px; object-fit: contain; border-radius: 15px; margin-bottom: 10px; background: #fff; padding: 8px; }
+        .partner-name { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .partner-desc { font-size: 0.85rem; color: #aaa; line-height: 1.5; }
+
+        .team-section { margin: 20px 0 30px; padding: 20px; background: rgba(15, 20, 40, 0.5); backdrop-filter: blur(8px); border-radius: 30px; border: 1px solid rgba(255, 170, 0, 0.3); }
+        .team-title { color: #ffaa00; font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 2px; }
+        .team-grid { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .team-card { background: rgba(0, 0, 0, 0.4); border-radius: 20px; padding: 15px 25px; text-align: center; border: 1px solid rgba(255, 170, 0, 0.2); transition: 0.3s; min-width: 150px; }
+        .team-card:hover { transform: translateY(-3px); border-color: #ffaa00; }
+        .team-name { font-size: 1.1rem; font-weight: bold; color: #fff; }
+        .team-role { font-size: 0.8rem; color: #ffaa00; margin-top: 3px; }
+        .team-card.founder { border-color: #ffaa00; background: rgba(255,170,0,0.1); }
+        .team-card.owner { border-color: #00ffcc; background: rgba(0,255,204,0.1); }
+        .team-card.dev { border-color: #0066ff; background: rgba(0,102,255,0.1); }
+        .team-card.tester { border-color: #ff66ff; background: rgba(255,102,255,0.1); }
+
+        .vip-timer { background: linear-gradient(90deg, rgba(255, 170, 0, 0.2), rgba(0, 255, 255, 0.1)); border-radius: 30px; padding: 25px; text-align: center; margin: 40px 0 20px; border: 1px solid #ffaa00; }
+        .timer { font-size: 2.5rem; font-family: monospace; color: #0ff; letter-spacing: 5px; }
+        .footer { margin-top: 60px; text-align: center; padding: 25px; border-top: 1px solid rgba(0, 255, 255, 0.1); color: #666; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a2a3a; backdrop-filter: blur(20px); padding: 12px 25px; border-radius: 50px; color: #0ff; border: 1px solid #0ff; z-index: 1000; opacity: 0; transition: 0.3s; font-size: 0.9rem; }
+        .toast.show { opacity: 1; }
+
+        /* دکمه‌های دانلود در مودال ریلیز با لینک واقعی */
+        .release-download-btn {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            margin: 8px 0;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+        }
+        .release-download-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(255,255,255,0.2);
+        }
+
+        @media (max-width: 700px) { .hero-title { font-size: 2rem; } .header { flex-direction: column; text-align: center; } .admin-grid { grid-template-columns: 1fr 1fr; } .partner-card { min-width: 150px; max-width: 220px; padding: 15px; } .partner-logo { width: 60px; height: 60px; } .team-card { min-width: 120px; padding: 12px 15px; } }
+    </style>
+</head>
+<body>
+<div class="bg" id="bgElement"></div>
+<div class="glow-orb"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="logo"><span class="logo-icon">🔒</span><span class="logo-text">IR TUNNEL</span></div>
+        <div class="menu">
+            <div class="menu-btn" data-section="vpn">خانه</div>
+            <div class="menu-btn" data-section="games">سرورهای بازی</div>
+            <div class="menu-btn" data-section="servers">سرورهای جهانی</div>
+            <div class="menu-btn" onclick="showModal('loginModal')" id="loginMenuBtn">🔑 ورود</div>
+            <div class="menu-btn" onclick="showModal('registerModal')" id="registerMenuBtn">📝 ثبت نام</div>
+            <div class="menu-btn admin-btn" id="adminMenuBtn" style="display:none;" onclick="toggleAdmin()">⚙️ ادمین</div>
+            <div class="menu-btn" id="logoutMenuBtn" style="display:none;" onclick="logout()">🚪 خروج</div>
+        </div>
+    </div>
+
+    <div id="vpn-section" class="section active">
+        <div class="hero">
+            <div class="hero-title">IR TUNNEL VPN</div>
+            <div class="hero-desc">اینترنت آزاد، بدون محدودیت، با بالاترین سرعت و امنیت</div>
+            <div><span class="badge">🚀 سرعت 10 گیگابیت</span><span class="badge">🔒 رمزگذاری 256 بیت</span><span class="badge">🌍 120+ سرور جهانی</span></div>
+        </div>
+        <div class="welcome-card"><div class="welcome-text">🔵 خوش آمدی | برای استفاده از سرویس اشتراک تهیه کنید 🔵</div></div>
+        <button class="rgb-download-btn" id="downloadAppBtn">📱 دانلود اپلیکیشن IR TUNNEL 📱</button>
+        <div class="vip-timer">
+            <div style="color: #ffaa00; margin-bottom: 10px;">🔥 پیشنهاد ویژه ماه 🔥</div>
+            <div class="timer" id="countdownTimer">23:59:59</div>
+            <div style="color: #0f0; margin-top: 10px;">✨ با تخفیف ۴۰٪ تا پایان وقت ✨</div>
+        </div>
+
+        <!-- بخش پارتنرها -->
+        <div class="partners-section">
+            <div class="partners-title">🤝 حمایت کننده‌ها و همکاران</div>
+            <div class="partners-grid">
+                <div class="partner-card">
+                    <img class="partner-logo" src="https://dunb17ur4ymx4.cloudfront.net/webstore/logos/6c9b0cbd5c2f0ceef98f01068102b0d056c04b7b.png" alt="هایپیکسل" onerror="this.style.display='none'">
+                    <div class="partner-name">هایپیکسل</div>
+                    <div class="partner-desc">بابت دونیت ۲۰۰ دلاری</div>
+                </div>
+                <div class="partner-card">
+                    <img class="partner-logo" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS619JV6u6chH0gVIXtclNGnzjpTdL5QauQGQPmXw8IwVBtZ1Kh-y_AWsQ&s" alt="تیرکس ماین" onerror="this.style.display='none'">
+                    <div class="partner-name">تیرکس ماین</div>
+                    <div class="partner-desc">دونیت ۲۰ میلیونی و کمک تو ساخت سایت</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بخش تیم -->
+        <div class="team-section">
+            <div class="team-title">👑 تیم IR TUNNEL</div>
+            <div class="team-grid">
+                <div class="team-card founder"><div class="team-name">Fybel</div><div class="team-role">⭐ Founder</div></div>
+                <div class="team-card owner"><div class="team-name">MeowBitch</div><div class="team-role">👑 Owner</div></div>
+                <div class="team-card dev"><div class="team-name">Maryam Pahlavi</div><div class="team-role">💻 Dev</div></div>
+                <div class="team-card tester"><div class="team-name">Media_blu98</div><div class="team-role">🧪 Tester</div></div>
+            </div>
+        </div>
+
+        <!-- ادمین پنل -->
+        <div id="adminPanel" class="admin-panel">
+            <h3>⚙️ ادمین پنل IR TUNNEL</h3>
+            <div class="admin-grid">
+                <div class="admin-item" onclick="adminAction('users')"><span class="icon">👤</span>مدیریت کاربران</div>
+                <div class="admin-item" onclick="adminAction('rainbow')"><span class="icon">🌈</span>رنگین کمان</div>
+                <div class="admin-item" onclick="adminAction('clear')"><span class="icon">🗑️</span>پاکسازی کش</div>
+                <div class="admin-item" onclick="adminAction('backup')"><span class="icon">💾</span>پشتیبان گیری</div>
+                <div class="admin-item" onclick="adminAction('servers')"><span class="icon">⚡</span>وضعیت سرورها</div>
+                <div class="admin-item" onclick="adminAction('stats')"><span class="icon">📊</span>آمار سایت</div>
+                <div class="admin-item" onclick="adminAction('reset')"><span class="icon">🔄</span>ریستارت</div>
+                <div class="admin-item" onclick="adminAction('ip')"><span class="icon">🌐</span>IP کاربران</div>
+                <div class="admin-item" onclick="adminAction('log')"><span class="icon">📋</span>گزارش خطاها</div>
+                <div class="admin-item" onclick="adminAction('announce')"><span class="icon">📢</span>اعلان همگانی</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="games-section" class="section">
+        <div class="hero" style="padding: 30px;"><div class="hero-title">🎮 سرورهای اختصاصی بازی 🎮</div><div class="hero-desc">کمترین پینگ و بهترین تجربه گیمینگ</div></div>
+        <div class="games-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; margin: 40px 0;">
+            <div class="game-card" id="minecraftCard" style="background: linear-gradient(135deg, rgba(20, 30, 55, 0.9), rgba(10, 15, 35, 0.95)); backdrop-filter: blur(10px); border-radius: 35px; padding: 30px 20px; text-align: center; border: 2px solid rgba(0, 255, 255, 0.3); cursor: pointer; transition: all 0.3s ease;">
+                <div class="game-icon" style="font-size: 4rem; margin-bottom: 15px;">⛏️</div>
+                <div class="game-title" style="font-size: 1.8rem; font-weight: bold; color: #0ff; margin-bottom: 10px;">Minecraft</div>
+                <div class="game-desc" style="color: #bbb; font-size: 0.9rem;">فونیکس کلاینت | پرسرعت</div>
+                <div class="play-badge" style="display: inline-block; margin-top: 15px; background: #ffaa00; color: #000; padding: 8px 20px; border-radius: 40px; font-weight: bold;">ورود →</div>
+            </div>
+            <div class="game-card" id="dotaCard" style="background: linear-gradient(135deg, rgba(20, 30, 55, 0.9), rgba(10, 15, 35, 0.95)); backdrop-filter: blur(10px); border-radius: 35px; padding: 30px 20px; text-align: center; border: 2px solid rgba(0, 255, 255, 0.3); cursor: pointer; transition: all 0.3s ease;">
+                <div class="game-icon" style="font-size: 4rem; margin-bottom: 15px;">🏹</div>
+                <div class="game-title" style="font-size: 1.8rem; font-weight: bold; color: #0ff; margin-bottom: 10px;">Dota 2</div>
+                <div class="game-desc" style="color: #bbb; font-size: 0.9rem;">سرور رقابتی ایران</div>
+                <div class="play-badge" style="display: inline-block; margin-top: 15px; background: #ffaa00; color: #000; padding: 8px 20px; border-radius: 40px; font-weight: bold;">ورود →</div>
+            </div>
+            <div class="game-card" id="dayzCard" style="background: linear-gradient(135deg, rgba(20, 30, 55, 0.9), rgba(10, 15, 35, 0.95)); backdrop-filter: blur(10px); border-radius: 35px; padding: 30px 20px; text-align: center; border: 2px solid rgba(0, 255, 255, 0.3); cursor: pointer; transition: all 0.3s ease;">
+                <div class="game-icon" style="font-size: 4rem; margin-bottom: 15px;">🧟</div>
+                <div class="game-title" style="font-size: 1.8rem; font-weight: bold; color: #0ff; margin-bottom: 10px;">DayZ</div>
+                <div class="game-desc" style="color: #bbb; font-size: 0.9rem;">سرور survival زنده</div>
+                <div class="play-badge" style="display: inline-block; margin-top: 15px; background: #ffaa00; color: #000; padding: 8px 20px; border-radius: 40px; font-weight: bold;">ورود →</div>
+            </div>
+            <div class="game-card" id="counterCard" style="background: linear-gradient(135deg, rgba(20, 30, 55, 0.9), rgba(10, 15, 35, 0.95)); backdrop-filter: blur(10px); border-radius: 35px; padding: 30px 20px; text-align: center; border: 2px solid rgba(0, 255, 255, 0.3); cursor: pointer; transition: all 0.3s ease;">
+                <div class="game-icon" style="font-size: 4rem; margin-bottom: 15px;">🔫</div>
+                <div class="game-title" style="font-size: 1.8rem; font-weight: bold; color: #0ff; margin-bottom: 10px;">Counter-Strike</div>
+                <div class="game-desc" style="color: #bbb; font-size: 0.9rem;">سرورهای رقابتی</div>
+                <div class="play-badge" style="display: inline-block; margin-top: 15px; background: #ffaa00; color: #000; padding: 8px 20px; border-radius: 40px; font-weight: bold;">ورود →</div>
+            </div>
+        </div>
+        <div class="vip-timer" style="background: linear-gradient(90deg, rgba(255, 170, 0, 0.2), rgba(0, 255, 255, 0.1)); border-radius: 30px; padding: 25px; text-align: center; margin: 40px 0 20px; border: 1px solid #ffaa00;"><div style="color: #0ff;">💎 با فعال کردن وی‌پی‌ان، پینگ کمتر از ۵۰ 💎</div></div>
+    </div>
+
+    <div id="servers-section" class="section">
+        <div class="hero" style="padding: 30px;"><div class="hero-title">🌍 سرورهای پرسرعت جهانی</div><div class="hero-desc">انتخاب کنید و متصل شوید</div></div>
+        <div class="servers-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 30px;">
+            <div class="server-card" style="background: rgba(10, 15, 30, 0.8); backdrop-filter: blur(10px); border-radius: 25px; padding: 25px; border: 1px solid rgba(0, 255, 255, 0.2); text-align: center;">
+                <div class="server-flag" style="font-size: 3rem;">🇸🇬</div>
+                <div class="server-name" style="font-size: 1.4rem; color: white; margin: 10px 0;">سنگاپور</div>
+                <div class="server-ping" style="color: #0f0; font-size: 0.9rem; margin-bottom: 10px;">📡 پینگ: 38ms</div>
+                <button class="connect-server" style="background: rgba(0, 255, 255, 0.2); color: #0ff; border: 1px solid #0ff; padding: 10px 25px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 100%;" onclick="showToast('🔒 این سرور ویژه اشتراک است')">فقط ویژه اشتراک</button>
+            </div>
+            <div class="server-card" style="background: rgba(10, 15, 30, 0.8); backdrop-filter: blur(10px); border-radius: 25px; padding: 25px; border: 1px solid rgba(0, 255, 255, 0.2); text-align: center;">
+                <div class="server-flag" style="font-size: 3rem;">🇩🇪</div>
+                <div class="server-name" style="font-size: 1.4rem; color: white; margin: 10px 0;">آلمان</div>
+                <div class="server-ping" style="color: #0f0; font-size: 0.9rem; margin-bottom: 10px;">📡 پینگ: 65ms</div>
+                <button class="connect-server" style="background: rgba(0, 255, 255, 0.2); color: #0ff; border: 1px solid #0ff; padding: 10px 25px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 100%;" onclick="showToast('🔒 این سرور ویژه اشتراک است')">فقط ویژه اشتراک</button>
+            </div>
+            <div class="server-card" style="background: rgba(10, 15, 30, 0.8); backdrop-filter: blur(10px); border-radius: 25px; padding: 25px; border: 1px solid rgba(0, 255, 255, 0.2); text-align: center;">
+                <div class="server-flag" style="font-size: 3rem;">🇹🇷</div>
+                <div class="server-name" style="font-size: 1.4rem; color: white; margin: 10px 0;">ترکیه</div>
+                <div class="server-ping" style="color: #0f0; font-size: 0.9rem; margin-bottom: 10px;">📡 پینگ: 29ms</div>
+                <button class="connect-server" style="background: rgba(0, 255, 255, 0.2); color: #0ff; border: 1px solid #0ff; padding: 10px 25px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 100%;" onclick="showToast('🔒 این سرور ویژه اشتراک است')">فقط ویژه اشتراک</button>
+            </div>
+            <div class="server-card" style="background: rgba(10, 15, 30, 0.8); backdrop-filter: blur(10px); border-radius: 25px; padding: 25px; border: 1px solid rgba(0, 255, 255, 0.2); text-align: center;">
+                <div class="server-flag" style="font-size: 3rem;">🇺🇸</div>
+                <div class="server-name" style="font-size: 1.4rem; color: white; margin: 10px 0;">آمریکا</div>
+                <div class="server-ping" style="color: #0f0; font-size: 0.9rem; margin-bottom: 10px;">📡 پینگ: 115ms</div>
+                <button class="connect-server" style="background: rgba(0, 255, 255, 0.2); color: #0ff; border: 1px solid #0ff; padding: 10px 25px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 100%;" onclick="showToast('🔒 این سرور ویژه اشتراک است')">فقط ویژه اشتراک</button>
+            </div>
+        </div>
+    </div>
+    <div class="footer" style="margin-top: 60px; text-align: center; padding: 25px; border-top: 1px solid rgba(0, 255, 255, 0.1); color: #666;"><p>© 2025 IR TUNNEL | ارائه دهنده خدمات ویژه اینترنت</p></div>
+</div>
+
+<!-- مودال ریلیز با لینک دانلود واقعی -->
+<div id="releaseModal" class="modal-overlay">
+    <div class="modal-card">
+        <div style="font-size: 4rem; margin-bottom: 10px; animation: iconBounce 1.5s ease infinite;">🎉</div>
+        <h2 style="background: linear-gradient(90deg, #ff0000, #ff00ff, #00ff00, #ffff00, #ff0000); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: rgbShift 3s linear infinite; font-size: 2rem; margin-bottom: 8px;">iRTunnel VPN ریلیز شد</h2>
+        <div style="font-size: 2.5rem; margin: 5px 0 12px; letter-spacing: 8px;">✅ 😊 ✅</div>
+        <div style="width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #0ff, transparent); margin: 10px auto;"></div>
+        <!-- دکمه‌های دانلود با لینک فایل RAR -->
+        <a class="release-download-btn win" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #0078d4, #00a4ef);">🪟 دانلود نسخه ویندوز</a>
+        <a class="release-download-btn linux" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #f7b93e, #f7931e);">🐧 دانلود نسخه لینوکس</a>
+        <a class="release-download-btn android" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #3ddc84, #00c853);">📱 دانلود نسخه اندروید</a>
+        <a class="release-download-btn ios" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #5856d6, #7c6cf0);">🍏 دانلود نسخه iOS</a>
+        <button class="close-release-btn" style="background: linear-gradient(90deg, #ff4444, #cc0000); border: none; padding: 12px 35px; border-radius: 50px; color: white; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.3s; margin-top: 15px; width: 60%;" onclick="closeModal('releaseModal')">بستن</button>
+    </div>
+</div>
+
+<!-- مودال ثبت نام -->
+<div id="registerModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2>📝 ثبت نام</h2>
+        <input type="text" id="regUser" placeholder="نام کاربری">
+        <input type="email" id="regEmail" placeholder="ایمیل">
+        <input type="password" id="regPass" placeholder="رمز عبور">
+        <button class="btn-primary" onclick="registerUser()">ثبت نام</button>
+        <div class="close-modal" onclick="closeModal('registerModal')">بستن</div>
+    </div>
+</div>
+
+<!-- مودال لاگین -->
+<div id="loginModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2>🔐 ورود</h2>
+        <input type="text" id="loginUser" placeholder="نام کاربری">
+        <input type="password" id="loginPass" placeholder="رمز عبور">
+        <div id="loginError" style="color:#ff4444;font-size:0.85rem;margin-top:8px;display:none;">❌ نام کاربری یا رمز اشتباه است</div>
+        <button class="btn-primary" onclick="handleLogin()">ورود</button>
+        <div style="display:flex;justify-content:center;gap:15px;margin:15px 0;">
+            <button style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:10px 20px;color:white;cursor:pointer;" onclick="socialLogin('google')">🔵 Google</button>
+            <button style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:10px 20px;color:white;cursor:pointer;" onclick="socialLogin('github')">⚫ GitHub</button>
+        </div>
+        <div class="close-modal" onclick="closeModal('loginModal')">بستن</div>
+    </div>
+</div>
+
+<!-- مودال مدیریت کاربران -->
+<div id="usersModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2>👤 مدیریت کاربران</h2>
+        <div id="userListContainer" class="user-list"></div>
+        <button class="btn-primary btn-danger" onclick="clearAllUsers()">🗑️ حذف همه کاربران</button>
+        <div class="close-modal" onclick="closeModal('usersModal')">بستن</div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // ====== DATABASE ======
+    let users = JSON.parse(localStorage.getItem('irtunnel_users')) || [];
+    let currentUser = JSON.parse(localStorage.getItem('irtunnel_current_user')) || null;
+    let adminUser = { username: 'Fybel', password: 'Marl0wBad', isAdmin: true };
+
+    // ====== TOAST ======
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._timeout);
+        t._timeout = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ====== MODALS ======
+    function showModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // ====== REGISTER ======
+    function registerUser() {
+        const user = document.getElementById('regUser').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPass').value;
+        if (!user || !email || !pass) { showToast('❌ همه فیلدها را پر کنید'); return; }
+        if (users.find(u => u.username === user)) { showToast('❌ این نام کاربری قبلا ثبت شده'); return; }
+        users.push({ username: user, email, password: pass, ip: '192.168.1.' + Math.floor(Math.random()*255), registered: new Date().toLocaleString() });
+        localStorage.setItem('irtunnel_users', JSON.stringify(users));
+        closeModal('registerModal');
+        showToast('✅ ثبت نام موفق! اکنون وارد شوید');
+    }
+
+    // ====== LOGIN ======
+    function handleLogin() {
+        const user = document.getElementById('loginUser').value.trim();
+        const pass = document.getElementById('loginPass').value;
+        const error = document.getElementById('loginError');
+
+        if (user === adminUser.username && pass === adminUser.password) {
+            currentUser = { ...adminUser };
+            localStorage.setItem('irtunnel_current_user', JSON.stringify(currentUser));
+            error.style.display = 'none';
+            closeModal('loginModal');
+            afterLogin();
+            showToast('✅ خوش آمدی ادمین عزیز!');
+            return;
+        }
+
+        const found = users.find(u => u.username === user && u.password === pass);
+        if (found) {
+            currentUser = { ...found };
+            localStorage.setItem('irtunnel_current_user', JSON.stringify(currentUser));
+            error.style.display = 'none';
+            closeModal('loginModal');
+            afterLogin();
+            showToast('✅ خوش آمدی ' + user + '!');
+        } else {
+            error.style.display = 'block';
+        }
+    }
+
+    function socialLogin(provider) {
+        showToast('🔑 در حال اتصال به ' + provider + '...');
+        setTimeout(() => {
+            const fakeUser = { username: 'user_' + Math.random().toString(36).substr(2,5), email: 'user@' + provider + '.com', password: 'social' };
+            users.push({ ...fakeUser, ip: '192.168.1.' + Math.floor(Math.random()*255), registered: new Date().toLocaleString() });
+            localStorage.setItem('irtunnel_users', JSON.stringify(users));
+            currentUser = { ...fakeUser };
+            localStorage.setItem('irtunnel_current_user', JSON.stringify(currentUser));
+            afterLogin();
+            showToast('✅ ورود با ' + provider + ' موفق بود');
+        }, 1500);
+    }
+
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem('irtunnel_current_user');
+        document.getElementById('loginMenuBtn').style.display = 'inline-block';
+        document.getElementById('registerMenuBtn').style.display = 'inline-block';
+        document.getElementById('adminMenuBtn').style.display = 'none';
+        document.getElementById('logoutMenuBtn').style.display = 'none';
+        document.getElementById('adminPanel').classList.remove('show');
+        showToast('🚪 خارج شدید');
+    }
+
+    function afterLogin() {
+        document.getElementById('loginMenuBtn').style.display = 'none';
+        document.getElementById('registerMenuBtn').style.display = 'none';
+        document.getElementById('logoutMenuBtn').style.display = 'inline-block';
+        if (currentUser && currentUser.isAdmin) {
+            document.getElementById('adminMenuBtn').style.display = 'inline-block';
+            document.getElementById('adminPanel').classList.add('show');
+        }
+    }
+
+    // ====== ADMIN ACTIONS ======
+    function toggleAdmin() {
+        const panel = document.getElementById('adminPanel');
+        panel.classList.toggle('show');
+        showToast(panel.classList.contains('show') ? '⚙️ ادمین پنل باز شد' : '⚙️ ادمین پنل بسته شد');
+    }
+
+    function adminAction(action) {
+        const bg = document.getElementById('bgElement');
+        switch(action) {
+            case 'users':
+                showModal('usersModal');
+                renderUserList();
+                break;
+            case 'rainbow':
+                showToast('🌈 رنگین کمان فعال شد!');
+                bg.style.background = 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)';
+                bg.style.backgroundSize = '300% 100%';
+                bg.style.animation = 'rgbShift 0.3s linear infinite';
+                setTimeout(() => {
+                    bg.style.background = 'radial-gradient(ellipse at 30% 40%, #1a1a2e, #0a0a0f)';
+                    bg.style.animation = '';
+                    showToast('🌈 رنگین کمان تمام شد');
+                }, 10000);
+                break;
+            case 'clear':
+                localStorage.clear();
+                showToast('🗑️ کش پاک شد');
+                break;
+            case 'backup':
+                showToast('💾 پشتیبان گیری انجام شد (فایل ذخیره شد)');
+                break;
+            case 'servers':
+                showToast('⚡ تمام سرورها آنلاین هستند (۶ سرور فعال)');
+                break;
+            case 'stats':
+                showToast('📊 آمار: ' + users.length + ' کاربر ثبت نامی | بازدید: ۱۲۴۵');
+                break;
+            case 'reset':
+                showToast('🔄 ریستارت شد! صفحه رفرش شد');
+                setTimeout(() => location.reload(), 1000);
+                break;
+            case 'ip':
+                showToast('🌐 IP های کاربران در لاگ ثبت شد');
+                break;
+            case 'log':
+                showToast('📋 لاگ خطاها پاک شد');
+                break;
+            case 'announce':
+                const msg = prompt('📢 پیام اعلان را وارد کنید:');
+                if (msg) showToast('📢 اعلان ارسال شد: ' + msg);
+                break;
+            default: showToast('⚙️ ' + action + ' با موفقیت انجام شد');
+        }
+    }
+
+    function renderUserList() {
+        const container = document.getElementById('userListContainer');
+        if (users.length === 0) {
+            container.innerHTML = '<div style="color:#888;padding:20px;">هیچ کاربری ثبت نام نکرده است</div>';
+            return;
+        }
+        container.innerHTML = users.map(u => `
+            <div class="user-item">
+                <span>👤 ${u.username}</span>
+                <span>📧 ${u.email}</span>
+                <span>🌐 ${u.ip || 'نامشخص'}</span>
+                <span>📅 ${u.registered || 'نامشخص'}</span>
+            </div>
+        `).join('');
+    }
+
+    function clearAllUsers() {
+        if (confirm('⚠️ آیا از حذف همه کاربران مطمئنی؟')) {
+            users = [];
+            localStorage.setItem('irtunnel_users', JSON.stringify(users));
+            renderUserList();
+            showToast('🗑️ همه کاربران حذف شدند');
+        }
+    }
+
+    // ====== TIMER ======
+    let timeLeft = 24 * 60 * 60;
+    setInterval(() => {
+        if (timeLeft <= 0) timeLeft = 24 * 60 * 60;
+        const h = String(Math.floor(timeLeft / 3600)).padStart(2, '0');
+        const m = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0');
+        const s = String(timeLeft % 60).padStart(2, '0');
+        document.getElementById('countdownTimer').textContent = h + ':' + m + ':' + s;
+        timeLeft--;
+    }, 1000);
+
+    // ====== GAME CARDS ======
+    document.getElementById('minecraftCard').onclick = () => window.open('https://phoenixclient.ir/', '_blank');
+    document.getElementById('dotaCard').onclick = () => window.open('https://dotairan.eym.ir/', '_blank');
+    document.getElementById('dayzCard').onclick = () => window.open('https://sunz.ir/', '_blank');
+    document.getElementById('counterCard').onclick = () => window.open('https://maxgaming.ir/fa', '_blank');
+
+    // ====== DOWNLOAD BUTTON ======
+    document.getElementById('downloadAppBtn').onclick = () => showModal('releaseModal');
+
+    // ====== MENU ======
+    document.querySelectorAll('.menu-btn[data-section]').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(btn.dataset.section + '-section').classList.add('active');
+        };
+    });
+
+    // ====== RESTORE SESSION ======
+    if (currentUser) afterLogin();
+
+    // Close modals with ESC
+    document.onkeydown = e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); };
+</script>
+</body>
+</html>
