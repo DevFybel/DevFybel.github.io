@@ -70,10 +70,17 @@
         .partner-name { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
         .partner-desc { font-size: 0.85rem; color: #aaa; line-height: 1.5; }
 
+        /* تبلیغات */
+        .ad-section { margin: 20px 0; padding: 15px 20px; background: rgba(255, 170, 0, 0.1); border-radius: 20px; border: 2px solid #ffaa00; text-align: center; }
+        .ad-section a { color: #ffaa00; font-size: 1.2rem; font-weight: bold; text-decoration: none; transition: 0.3s; }
+        .ad-section a:hover { color: #fff; text-shadow: 0 0 15px #ffaa00; }
+        .ad-section .ad-desc { color: #ccc; font-size: 0.9rem; margin-top: 5px; }
+
+        /* تیم */
         .team-section { margin: 20px 0 30px; padding: 20px; background: rgba(15, 20, 40, 0.5); backdrop-filter: blur(8px); border-radius: 30px; border: 1px solid rgba(255, 170, 0, 0.3); }
         .team-title { color: #ffaa00; font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 2px; }
         .team-grid { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
-        .team-card { background: rgba(0, 0, 0, 0.4); border-radius: 20px; padding: 15px 25px; text-align: center; border: 1px solid rgba(255, 170, 0, 0.2); transition: 0.3s; min-width: 150px; }
+        .team-card { background: rgba(0, 0, 0, 0.4); border-radius: 20px; padding: 15px 25px; text-align: center; border: 1px solid rgba(255, 170, 0, 0.2); transition: 0.3s; min-width: 140px; }
         .team-card:hover { transform: translateY(-3px); border-color: #ffaa00; }
         .team-name { font-size: 1.1rem; font-weight: bold; color: #fff; }
         .team-role { font-size: 0.8rem; color: #ffaa00; margin-top: 3px; }
@@ -82,34 +89,19 @@
         .team-card.dev { border-color: #0066ff; background: rgba(0,102,255,0.1); }
         .team-card.tester { border-color: #ff66ff; background: rgba(255,102,255,0.1); }
 
+        /* Announcement */
+        .announcement-box { background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 255, 0.1)); border-radius: 20px; padding: 15px 20px; margin: 15px 0; border: 1px solid #0ff; text-align: center; display: none; }
+        .announcement-box.show { display: block; }
+        .announcement-box .announce-text { color: #fff; font-size: 1.1rem; }
+        .announcement-box .announce-close { float: left; color: #ff4444; cursor: pointer; font-size: 1.2rem; }
+
         .vip-timer { background: linear-gradient(90deg, rgba(255, 170, 0, 0.2), rgba(0, 255, 255, 0.1)); border-radius: 30px; padding: 25px; text-align: center; margin: 40px 0 20px; border: 1px solid #ffaa00; }
         .timer { font-size: 2.5rem; font-family: monospace; color: #0ff; letter-spacing: 5px; }
         .footer { margin-top: 60px; text-align: center; padding: 25px; border-top: 1px solid rgba(0, 255, 255, 0.1); color: #666; }
         .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a2a3a; backdrop-filter: blur(20px); padding: 12px 25px; border-radius: 50px; color: #0ff; border: 1px solid #0ff; z-index: 1000; opacity: 0; transition: 0.3s; font-size: 0.9rem; }
         .toast.show { opacity: 1; }
 
-        /* دکمه‌های دانلود در مودال ریلیز با لینک واقعی */
-        .release-download-btn {
-            display: block;
-            width: 100%;
-            padding: 14px 20px;
-            margin: 8px 0;
-            font-size: 1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-        }
-        .release-download-btn:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 25px rgba(255,255,255,0.2);
-        }
-
-        @media (max-width: 700px) { .hero-title { font-size: 2rem; } .header { flex-direction: column; text-align: center; } .admin-grid { grid-template-columns: 1fr 1fr; } .partner-card { min-width: 150px; max-width: 220px; padding: 15px; } .partner-logo { width: 60px; height: 60px; } .team-card { min-width: 120px; padding: 12px 15px; } }
+        @media (max-width: 700px) { .hero-title { font-size: 2rem; } .header { flex-direction: column; text-align: center; } .admin-grid { grid-template-columns: 1fr 1fr; } .partner-card { min-width: 150px; max-width: 220px; padding: 15px; } .partner-logo { width: 60px; height: 60px; } .team-card { min-width: 100px; padding: 10px 15px; } }
     </style>
 </head>
 <body>
@@ -144,6 +136,12 @@
             <div style="color: #0f0; margin-top: 10px;">✨ با تخفیف ۴۰٪ تا پایان وقت ✨</div>
         </div>
 
+        <!-- Announcement Box -->
+        <div id="announcementBox" class="announcement-box">
+            <span class="announce-close" onclick="closeAnnouncement()">✕</span>
+            <div class="announce-text" id="announceText">📢 اطلاعیه جدیدی وجود ندارد</div>
+        </div>
+
         <!-- بخش پارتنرها -->
         <div class="partners-section">
             <div class="partners-title">🤝 حمایت کننده‌ها و همکاران</div>
@@ -161,12 +159,19 @@
             </div>
         </div>
 
+        <!-- بخش تبلیغات -->
+        <div class="ad-section">
+            <a href="https://zoqali.ir" target="_blank">🌐 Zoqali.ir</a>
+            <div class="ad-desc">بهترین سایت چتروم فارسی</div>
+        </div>
+
         <!-- بخش تیم -->
         <div class="team-section">
             <div class="team-title">👑 تیم IR TUNNEL</div>
             <div class="team-grid">
                 <div class="team-card founder"><div class="team-name">Fybel</div><div class="team-role">⭐ Founder</div></div>
                 <div class="team-card owner"><div class="team-name">MeowBitch</div><div class="team-role">👑 Owner</div></div>
+                <div class="team-card owner"><div class="team-name">Vizzio</div><div class="team-role">👑 Owner</div></div>
                 <div class="team-card dev"><div class="team-name">Maryam Pahlavi</div><div class="team-role">💻 Dev</div></div>
                 <div class="team-card tester"><div class="team-name">Media_blu98</div><div class="team-role">🧪 Tester</div></div>
             </div>
@@ -185,7 +190,7 @@
                 <div class="admin-item" onclick="adminAction('reset')"><span class="icon">🔄</span>ریستارت</div>
                 <div class="admin-item" onclick="adminAction('ip')"><span class="icon">🌐</span>IP کاربران</div>
                 <div class="admin-item" onclick="adminAction('log')"><span class="icon">📋</span>گزارش خطاها</div>
-                <div class="admin-item" onclick="adminAction('announce')"><span class="icon">📢</span>اعلان همگانی</div>
+                <div class="admin-item" onclick="adminAction('announce')"><span class="icon">📢</span>مدیریت اطلاعیه</div>
             </div>
         </div>
     </div>
@@ -260,11 +265,10 @@
         <h2 style="background: linear-gradient(90deg, #ff0000, #ff00ff, #00ff00, #ffff00, #ff0000); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: rgbShift 3s linear infinite; font-size: 2rem; margin-bottom: 8px;">iRTunnel VPN ریلیز شد</h2>
         <div style="font-size: 2.5rem; margin: 5px 0 12px; letter-spacing: 8px;">✅ 😊 ✅</div>
         <div style="width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #0ff, transparent); margin: 10px auto;"></div>
-        <!-- دکمه‌های دانلود با لینک فایل RAR -->
-        <a class="release-download-btn win" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #0078d4, #00a4ef);">🪟 دانلود نسخه ویندوز</a>
-        <a class="release-download-btn linux" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #f7b93e, #f7931e);">🐧 دانلود نسخه لینوکس</a>
-        <a class="release-download-btn android" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #3ddc84, #00c853);">📱 دانلود نسخه اندروید</a>
-        <a class="release-download-btn ios" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="background: linear-gradient(90deg, #5856d6, #7c6cf0);">🍏 دانلود نسخه iOS</a>
+        <a class="release-download-btn win" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="display: block; width: 100%; padding: 14px 20px; margin: 8px 0; font-size: 1rem; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(90deg, #0078d4, #00a4ef); color: white; text-decoration: none; text-align: center;">🪟 دانلود نسخه ویندوز</a>
+        <a class="release-download-btn linux" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="display: block; width: 100%; padding: 14px 20px; margin: 8px 0; font-size: 1rem; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(90deg, #f7b93e, #f7931e); color: white; text-decoration: none; text-align: center;">🐧 دانلود نسخه لینوکس</a>
+        <a class="release-download-btn android" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="display: block; width: 100%; padding: 14px 20px; margin: 8px 0; font-size: 1rem; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(90deg, #3ddc84, #00c853); color: white; text-decoration: none; text-align: center;">📱 دانلود نسخه اندروید</a>
+        <a class="release-download-btn ios" href="https://s21.uupload.ir/files/fybel/irtunnel.rar" download target="_blank" style="display: block; width: 100%; padding: 14px 20px; margin: 8px 0; font-size: 1rem; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(90deg, #5856d6, #7c6cf0); color: white; text-decoration: none; text-align: center;">🍏 دانلود نسخه iOS</a>
         <button class="close-release-btn" style="background: linear-gradient(90deg, #ff4444, #cc0000); border: none; padding: 12px 35px; border-radius: 50px; color: white; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.3s; margin-top: 15px; width: 60%;" onclick="closeModal('releaseModal')">بستن</button>
     </div>
 </div>
@@ -307,6 +311,17 @@
     </div>
 </div>
 
+<!-- مودال مدیریت اطلاعیه -->
+<div id="announceModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2>📢 مدیریت اطلاعیه</h2>
+        <textarea id="announceInput" rows="3" placeholder="متن اطلاعیه را وارد کنید..." style="width:100%; padding:12px; border-radius:15px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.2); font-size:1rem;"></textarea>
+        <button class="btn-primary" onclick="saveAnnouncement()">ذخیره اطلاعیه</button>
+        <button class="btn-primary btn-danger" onclick="removeAnnouncement()" style="margin-top:10px;">حذف اطلاعیه</button>
+        <div class="close-modal" onclick="closeModal('announceModal')">بستن</div>
+    </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -314,6 +329,7 @@
     let users = JSON.parse(localStorage.getItem('irtunnel_users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('irtunnel_current_user')) || null;
     let adminUser = { username: 'Fybel', password: 'Marl0wBad', isAdmin: true };
+    let announcementText = localStorage.getItem('irtunnel_announcement') || '';
 
     // ====== TOAST ======
     function showToast(msg) {
@@ -327,6 +343,43 @@
     // ====== MODALS ======
     function showModal(id) { document.getElementById(id).classList.add('show'); }
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // ====== ANNOUNCEMENT ======
+    function loadAnnouncement() {
+        const box = document.getElementById('announcementBox');
+        const text = document.getElementById('announceText');
+        if (announcementText && announcementText.trim() !== '') {
+            text.textContent = '📢 ' + announcementText;
+            box.classList.add('show');
+        } else {
+            box.classList.remove('show');
+        }
+    }
+
+    function saveAnnouncement() {
+        const input = document.getElementById('announceInput');
+        if (input.value.trim() === '') {
+            showToast('❌ لطفا متن اطلاعیه را وارد کنید');
+            return;
+        }
+        announcementText = input.value.trim();
+        localStorage.setItem('irtunnel_announcement', announcementText);
+        loadAnnouncement();
+        closeModal('announceModal');
+        showToast('✅ اطلاعیه ذخیره شد');
+    }
+
+    function removeAnnouncement() {
+        announcementText = '';
+        localStorage.removeItem('irtunnel_announcement');
+        loadAnnouncement();
+        closeModal('announceModal');
+        showToast('🗑️ اطلاعیه حذف شد');
+    }
+
+    function closeAnnouncement() {
+        document.getElementById('announcementBox').classList.remove('show');
+    }
 
     // ====== REGISTER ======
     function registerUser() {
@@ -453,8 +506,8 @@
                 showToast('📋 لاگ خطاها پاک شد');
                 break;
             case 'announce':
-                const msg = prompt('📢 پیام اعلان را وارد کنید:');
-                if (msg) showToast('📢 اعلان ارسال شد: ' + msg);
+                document.getElementById('announceInput').value = announcementText;
+                showModal('announceModal');
                 break;
             default: showToast('⚙️ ' + action + ' با موفقیت انجام شد');
         }
@@ -515,6 +568,7 @@
 
     // ====== RESTORE SESSION ======
     if (currentUser) afterLogin();
+    loadAnnouncement();
 
     // Close modals with ESC
     document.onkeydown = e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); };
